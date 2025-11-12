@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('color')->nullable();
             $table->integer('capacity')->nullable();
             $table->string('status')->default('available');
-
             $table->index('type');   
             $table->index('status'); 
             $table->timestamps();

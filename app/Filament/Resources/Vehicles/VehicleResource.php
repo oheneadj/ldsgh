@@ -72,16 +72,21 @@ class VehicleResource extends Resource
         return $table
             ->recordTitleAttribute('Vehicle')
             ->columns([
-                TextColumn::make('driver_profile_id')
+                TextColumn::make('driver.driver_profile_id')
                     ->numeric()
+                    ->label('Driver Name')
                     ->sortable(),
                 TextColumn::make('type')
+                ->label('Type')
                     ->searchable(),
                 TextColumn::make('model')
+                ->label('Model')
                     ->searchable(),
                 TextColumn::make('plate_number')
+                ->label('License Plate Number')
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label('Is Active')
                     ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
