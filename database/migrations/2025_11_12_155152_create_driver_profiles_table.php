@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('driver_profiles', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('license_number')->unique();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('license_number')->unique()->nullable();
+            $table->string('license_image')->nullable();
             $table->boolean('is_available')->default(true);
             $table->decimal('current_latitude', 10, 8)->nullable();
             $table->decimal('current_longitude', 11, 8)->nullable();

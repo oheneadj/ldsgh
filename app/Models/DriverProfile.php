@@ -9,6 +9,7 @@ class DriverProfile extends Model
     protected $fillable = [
         'user_id',
         'license_number',
+        'license_image',
         'is_available',
         'current_latitude',
         'current_longitude',

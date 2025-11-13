@@ -11,6 +11,7 @@ use App\Models\ServiceRequest;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -86,7 +87,7 @@ public function serviceRequests()
     return $this->hasMany(ServiceRequest::class, 'customer_profile_id');
 }
 
-public function driverProfile():hasOne
+public function driverProfile():HasOne
 {
     return $this->hasOne(DriverProfile::class, 'user_id');
 }
