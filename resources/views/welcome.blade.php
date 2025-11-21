@@ -1,559 +1,555 @@
 <!DOCTYPE html>
-<html class="scroll-smooth" lang="{{ str_replace('_', '-', app()->getLocale()) }}"></html>
+<html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuickSend | Book Package, Ride or Express</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery & Ride Booking Flow</title>
 
-  <!-- Tailwind v4 CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            orange: {
-              50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
-              400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
-              800: '#9a3412', 900: '#7c2d12',
-            },
-            gray: {
-              50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db',
-            }
-          },
-          fontFamily: { sans: ['instrument-sans', 'system-ui', 'sans-serif'] },
-          transitionTimingFunction: { smooth: 'cubic-bezier(0.4, 0, 0.2, 1)' },
-          transitionDuration: { '400': '400ms', '600': '600ms' },
-          spacing: { '18': '4.5rem', '22': '5.5rem' }
+    <!-- Import Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap"
+        rel="stylesheet">
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to define primary colors and match unique spacings/typography */
+        :root {
+            --primary-color: #FF7400;
+            --primary-light: #FFE3D3;
+            --primary-accent: #FFEDE4;
         }
-      }
-    };
-  </script>
-   <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-  <style>
-    /* Hide native radio buttons globally but keep functionality */
-    input[type="radio"] { 
-      position: absolute; 
-      opacity: 0; 
-      width: 0; 
-      height: 0; 
-    }
 
-    /* Hide the gray circle, show only orange checkmark */
-    .radio-circle {
-      @apply w-5 h-5 rounded-full border-2 border-gray-300;
-    }
-    .radio-circle.peer-checked {
-      @apply border-orange-500;
-    }
-    /* Hide the circle visually but keep space */
-    .hide-circle .radio-circle {
-      @apply opacity-0;
-    }
+        /* --- Custom Font Classes --- */
+        .font-header {
+            font-family: 'Bricolage Grotesque', sans-serif;
+        }
 
-    /* Orange checkmark */
-    .radio-checked::after {
-      content: '';
-      position: absolute; top: 50%; left: 50%;
-      width: 8px; height: 8px; background: #f97316;
-      border-radius: 50%; transform: translate(-50%, -50%);
-    }
+        .text-primary {
+            color: var(--primary-color);
+        }
 
-    /* Step entrance */
-    .step { 
-      transition: all 600ms cubic-bezier(0.4, 0, 0.2, 1);
-      opacity:0; transform:translateY(20px); 
-    }
-    .step.active { opacity:1; transform:translateY(0); }
+        .bg-primary {
+            background-color: var(--primary-color);
+        }
 
-    /* Progress bar */
-    #progress-bar { transition: width 800ms cubic-bezier(0.4, 0, 0.2, 1); }
+        .bg-primary-light {
+            background-color: var(--primary-light);
+        }
 
-    /* Pagination dots */
-    .dot {
-      width:10px; height:10px; background:#d1d5db; border-radius:50%;
-      transition:all 400ms cubic-bezier(0.4,0,0.2,1);
-    }
-    .dot.active { background:#f97316; transform:scale(1.3); }
-    .dot:hover { background:#fb923c; }
+        .bg-primary-accent {
+            background-color: var(--primary-accent);
+        }
 
-    /* Ripple */
-    .btn-ripple { position:relative; overflow:hidden; }
-    .btn-ripple::after {
-      content:''; position:absolute; top:50%; left:50%;
-      width:0; height:0; background:rgba(255,255,255,.3);
-      border-radius:50%; transform:translate(-50%,-50%);
-      transition:width 600ms cubic-bezier(0.4,0,0.2,1),
-                 height 600ms cubic-bezier(0.4,0,0.2,1);
-    }
-    .btn-ripple:active::after { width:300px; height:300px; }
+        .shadow-soft {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
 
-    /* Mobile tweaks */
-    @media (max-width: 640px) {
-      .container { @apply px-4; }
-      .card, .option-card { @apply p-5; }
-      .step { @apply p-5 sm:p-6; }
-      h2 { @apply text-xl sm:text-2xl; }
-      .btn-ripple { @apply py-4 text-base; }
-      input[type="text"], input[type="datetime-local"] { @apply py-4 text-base; }
-      #quantity-value { @apply py-4 text-base; }
-      .quantity-btn { @apply w-14 h-14; }
-    }
-  </style>
+        /* Subtle elevation for cards */
+        .text-header {
+            font-size: 1.65rem;
+            line-height: 2rem;
+        }
+
+
+        /* Utility for simulating Heroicons placeholders */
+        .icon-placeholder {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        /* Classes for visual states (e.g., disabled button) */
+        .btn-disabled {
+            background-color: var(--primary-light) !important;
+            color: #FFFFFF !important;
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+        }
+
+        /* Hide overflow and remove global container padding */
+        .max-w-md {
+            overflow-x: hidden;
+            padding: 0 !important;
+        }
+
+        /* Wrapper holds all screens and handles horizontal translation */
+        .flow-wrapper {
+            display: flex;
+            transition: transform 0.4s ease-in-out;
+            width: 400%;
+        }
+
+        /* Each screen slice */
+        .flow-screen {
+            width: 25%;
+            flex-shrink: 0;
+            padding: 1.25rem;
+            padding-bottom: 4rem;
+        }
+
+        /* Card Selection State */
+        .flow-card {
+            /* Base styles for all cards */
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            /* default border */
+            transition: all 0.2s ease-in-out;
+        }
+
+        .flow-card.selected {
+            background-color: var(--primary-accent);
+            border-color: var(--primary-color);
+            border-width: 2px;
+            box-shadow: 0 10px 15px -3px rgba(255, 116, 0, 0.1), 0 4px 6px -4px rgba(255, 116, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Red Hat Display"', 'sans-serif'],
+                        header: ['"Bricolage Grotesque"', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1.25rem',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <div class="max-w-md mx-auto bg-white shadow-lg md:shadow-xl min-h-screen">
 
-  <!-- Header -->
-  <header class="bg-white shadow-sm sticky top-0 z-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-orange-600">QuickSend</h1>
-     <nav>
-          @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4">
-                    @auth
-                        <a
-                            href="{{ url('/dashboard') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
-                        >
-                            Dashboard
-                        </a>
-                    @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
-                        >
-                            Log in
-                        </a>
+        <!-- Global Header Component (Fixed position for the whole flow) -->
+        <header class="flex justify-between items-center pt-2 pb-3 sticky top-0 bg-white z-10 shadow-sm">
+            <div class="text-2xl font-extrabold text-primary font-header">
+                <img src="{{ asset('images/logo.png') }}" alt="" class="w-28">
+            </div>
+            <div class="flex items-center space-x-2 px-5">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-sm font-semibold text-gray-700">+233 59 3353125</span>
+            </div>
+        </header>
 
-                        @if (Route::has('register'))
-                            <a
-                                href="{{ route('register') }}"
-                                class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
-                                Register
-                            </a>
-                        @endif
-                    @endauth
-                </nav>
-            @endif
-     </nav>
+
+        <div id="flow-wrapper" class="flow-wrapper">
+
+            <!-- --- Screen: 1. Service Type Selection (Delivery/Ride) --- -->
+            <section id="service-type-screen" class="flow-screen space-y-6 pt-4">
+                <h1 class="text-header font-bold font-header">Choose Service</h1>
+                <p class="text-gray-500 mb-8 text-sm">What type of service do you need today?</p>
+
+                <div class="space-y-5">
+                    <div id="card-delivery"
+                        class="flow-card rounded-2xl overflow-hidden transition duration-200 hover:shadow-md cursor-pointer">
+                        <div
+                            class="h-48 w-full bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center relative overflow-hidden">
+                            <img src="{{ asset('images/delivery.png') }}" alt="">
+                        </div>
+                        <div class="p-4 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-semibold font-header">Delivery</h2>
+                                <p class="text-sm text-gray-500">Fast, safe package delivery</p>
+                            </div>
+                            <svg class="icon-placeholder text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Ride Card -->
+                    <div id="card-ride"
+                        class="flow-card rounded-2xl overflow-hidden transition duration-200 hover:shadow-md cursor-pointer">
+                        <div
+                            class="h-48 w-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center overflow-hidden">
+                            <img  src="{{ asset('images/ride.png') }}" alt="">
+                        </div>
+                        <div class="p-4 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900 font-header">Ride</h2>
+                                <p class="text-sm text-gray-600">Your reliable ride, anytime</p>
+                            </div>
+                            <svg class="icon-placeholder text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Button -->
+                <button id="continue-btn-1"
+                    class="w-full py-4 text-white text-lg font-semibold rounded-full btn-disabled mt-8 shadow-md" disabled>
+                    Continue
+                </button>
+            </section>
+
+            <!-- --- Screen: 2. Delivery Speed Screen --- -->
+            <section id="delivery-speed-screen" class="flow-screen space-y-6 pt-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-header font-bold font-header">Delivery</h1>
+                    <a href="#" id="back-btn-2"
+                        class="back-button-link flex items-center text-gray-500 text-sm font-medium">
+                        <svg class="icon-placeholder w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                        Back
+                    </a>
+                </div>
+                <p class="text-gray-500 mb-8 text-sm -mt-2">Pick your time and we'll deliver right on the dot.</p>
+
+                <div class="space-y-4">
+                    <!-- Express Card -->
+                    <div id="card-express" class="flow-card rounded-xl p-6 cursor-pointer">
+                        <h2 class="text-xl font-semibold text-gray-900 font-header">Express</h2>
+                        <p class="text-gray-500 mb-3">Get a ride now</p>
+                        <div
+                            class="inline-flex items-center bg-white py-1 px-3 rounded-full text-sm font-medium text-gray-700 shadow-sm border border-gray-100">
+                            <svg class="icon-placeholder w-4 h-4 mr-1.5 text-primary" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            5 - 10 mins
+                        </div>
+                    </div>
+
+                    <!-- Same Day Card -->
+                    <div id="card-same-day"
+                        class="flow-card rounded-xl p-6 transition duration-200 hover:shadow-md cursor-pointer">
+                        <h2 class="text-xl font-semibold font-header">Same Day</h2>
+                        <p class="text-gray-500">Schedule For Later Today</p>
+                    </div>
+
+                    <!-- Advance Card -->
+                    <div id="card-advance"
+                        class="flow-card rounded-xl p-6 transition duration-200 hover:shadow-md cursor-pointer">
+                        <h2 class="text-xl font-semibold font-header">Advance</h2>
+                        <p class="text-gray-500">Book for a future date</p>
+                    </div>
+                </div>
+
+                <!-- CTA Button -->
+                <button id="continue-btn-2"
+                    class="w-full py-4 text-lg font-semibold rounded-full btn-disabled bg-primary text-white mt-8 shadow-md"
+                    disabled>
+                    Continue
+                </button>
+            </section>
+
+            <!-- --- Screen: 3. "What Are You Sending?" Screen (Item Selection) --- -->
+            <section id="what-are-you-sending-screen" class="flow-screen space-y-6 pt-4">
+                <!-- Header with Back Button -->
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-header font-bold font-header">What are you sending?</h1>
+                    <a href="#" id="back-btn-3"
+                        class="back-button-link flex items-center text-gray-500 text-sm font-medium">
+                        <svg class="icon-placeholder w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                        Back
+                    </a>
+                </div>
+                <p class="text-gray-500 mb-8 text-sm -mt-2">Choose the type of item you want us to deliver.</p>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Parcel Card -->
+                    <div id="card-parcel"
+                        class="flow-card rounded-xl p-3 cursor-pointer flex flex-col items-center text-center space-y-2">
+                        <div class="h-28 w-full bg-orange-50 rounded-lg flex items-center justify-center overflow-hidden">
+                            <img src="{{ asset("images/parcel.png") }}" alt="">
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <span class="text-lg font-medium font-header">Parcel</span>
+                            <div class="w-6 h-6 flex items-center justify-center rounded-full border-2 border-gray-400 bg-white checkmark"></div>
+                        </div>
+                    </div>
+
+                    <!-- Foodstuff Card -->
+                    <div id="card-foodstuff"
+                        class="flow-card rounded-xl p-3 cursor-pointer flex flex-col items-center text-center space-y-2">
+                        <div class="h-28 w-full bg-green-50 rounded-lg flex items-center justify-center overflow-hidden">
+                            <img src="{{ asset("images/food.png") }}" alt="">
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <span class="text-lg font-medium font-header">Foodstuff</span>
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-400 bg-white checkmark"></div>
+                        </div>
+                    </div>
+
+                    <!-- Document Card -->
+                    <div id="card-document"
+                        class="flow-card rounded-xl p-3 cursor-pointer flex flex-col items-center text-center space-y-2">
+                        <div class="h-28 w-full bg-blue-50 rounded-lg flex items-center justify-center overflow-hidden">
+                            <img src="{{ asset("images/doc.png") }}" alt="">
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <span class="text-lg font-medium font-header">Document</span>
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-400 bg-white checkmark"></div>
+                        </div>
+                    </div>
+
+                    <!-- Others Card -->
+                    <div id="card-others"
+                        class="flow-card rounded-xl p-3 cursor-pointer flex flex-col items-center text-center space-y-2">
+                        <div class="h-28 w-full bg-purple-50 rounded-lg flex items-center justify-center overflow-hidden">
+                            <img src="{{ asset("images/other.png") }}" alt="">
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <span class="text-lg font-medium font-header">Others</span>
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-400 bg-white checkmark"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Field -->
+                <div class="space-y-3 pt-4 hidden" id="item-description-container">
+                    <label for="item-description" class="text-base font-semibold text-gray-800">Describe Your
+                        Item</label>
+                    <textarea id="item-description" rows="3"
+                        class="w-full bg-primary-light p-4 rounded-xl border-none ring-0 focus:ring-2 focus:ring-primary placeholder-gray-500 resize-none text-gray-800"
+                        placeholder="What item are you sending?"></textarea>
+                </div>
+
+                <!-- CTA Button -->
+                <button id="continue-btn-3"
+                    class="w-full py-4 text-lg font-semibold rounded-full btn-disabled bg-primary text-white mt-8 shadow-md"
+                    disabled>
+                    Continue
+                </button>
+            </section>
+
+            <!-- --- Screen: 4. Location Selection Screen --- -->
+            <section id="location-selection-screen" class="flow-screen space-y-6 pt-4">
+                <!-- Header with Back Button -->
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-header font-bold font-header">Location</h1>
+                    <a href="#" id="back-btn-4"
+                        class="back-button-link flex items-center text-gray-500 text-sm font-medium">
+                        <svg class="icon-placeholder w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                        Back
+                    </a>
+                </div>
+                <p class="text-gray-500 mb-8 text-sm -mt-2">Enter your pickup and drop-off destinations.</p>
+
+                <div class="space-y-8">
+                    <!-- Pickup Location Field -->
+                    <div class="space-y-2">
+                        <label for="pickup-location" class="text-lg font-semibold font-header">Pickup</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="icon-placeholder text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                </svg>
+                            </div>
+                            <input id="pickup-location" type="text" placeholder="Enter Pickup Location"
+                                class="location-input w-full bg-primary-light py-4 pl-12 pr-4 rounded-2xl border-none ring-0 focus:ring-2 focus:ring-primary placeholder-gray-500 text-gray-800" />
+                        </div>
+                    </div>
+
+                    <!-- Drop-Off Location Field -->
+                    <div class="space-y-2">
+                        <label for="dropoff-location" class="text-lg font-semibold font-header">Drop-Off
+                            Location</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="icon-placeholder text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                </svg>
+                            </div>
+                            <input id="dropoff-location" type="text" placeholder="Enter Drop-Off Location"
+                                class="location-input w-full bg-primary-light py-4 pl-12 pr-4 rounded-2xl border-none ring-0 focus:ring-2 focus:ring-primary placeholder-gray-500 text-gray-800" />
+                        </div>
+                    </div>
+
+                    <!-- Anything Special Textarea -->
+                    <div class="space-y-2 pt-4">
+                        <label class="text-lg font-semibold">Anything special we should know?</label>
+                        <textarea rows="4"
+                            class="w-full bg-primary-light p-4 rounded-xl border-none ring-0 focus:ring-2 focus:ring-primary placeholder-gray-500 resize-none text-gray-800"
+                            placeholder="E.g., apartment number, gate code, or preferred drop-off instructions"></textarea>
+                    </div>
+                </div>
+
+                <!-- CTA Button -->
+                <button id="continue-btn-4"
+                    class="w-full py-4 text-lg font-semibold rounded-full btn-disabled bg-primary text-white mt-8 shadow-md"
+                    disabled>
+                    Review Order
+                </button>
+            </section>
+        </div>
     </div>
-  </header>
 
-          
+    <!-- JavaScript for Flow and State Management -->
+    <script>
+        let currentStep = 1;
+        const totalScreens = 4;
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSelectionListeners();
+            updateUI(false);
 
-    <!-- Service Cards -->
-    <div id="service-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-10">
-      <!-- Package -->
-      <label class="card-label cursor-pointer block">
-        <input type="radio" name="service" value="package" class="peer"/>
-        <div class="card bg-white rounded-2xl p-5 sm:p-6 shadow-lg transition-all duration-600 border-2 border-transparent peer-checked:border-orange-500">
-          <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4">
-            <img src="https://illustrations.popsy.co/orange/package-delivery.svg" alt="Package" class="w-full h-full object-contain"/>
-          </div>
-          <h3 class="text-lg sm:text-xl font-semibold text-center text-gray-800">Package</h3>
-          <p class="text-xs sm:text-sm text-gray-600 text-center mt-2">Documents, parcels & goods</p>
-        </div>
-      </label>
+            // Attach listeners to Continue buttons
+            document.getElementById('continue-btn-1').addEventListener('click', () => navigate(2));
+            document.getElementById('continue-btn-2').addEventListener('click', () => navigate(3));
+            document.getElementById('continue-btn-3').addEventListener('click', () => navigate(4));
 
-      <!-- Ride -->
-      <label class="card-label cursor-pointer block">
-        <input type="radio" name="service" value="ride" class="peer"/>
-        <div class="card bg-white rounded-2xl p-5 sm:p-6 shadow-lg transition-all duration-600 border-2 border-transparent peer-checked:border-orange-500">
-          <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4">
-            <img src="https://illustrations.popsy.co/orange/taxi.svg" alt="Ride" class="w-full h-full object-contain"/>
-          </div>
-          <h3 class="text-lg sm:text-xl font-semibold text-center text-gray-800">Ride</h3>
-          <p class="text-xs sm:text-sm text-gray-600 text-center mt-2">Book a quick ride now</p>
-        </div>
-      </label>
-
-      <!-- Express -->
-      <label class="card-label cursor-pointer block">
-        <input type="radio" name="service" value="express" class="peer"/>
-        <div class="card bg-white rounded-2xl p-5 sm:p-6 shadow-lg transition-all duration-600 border-2 border-transparent peer-checked:border-orange-500">
-          <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4">
-            <img src="https://illustrations.popsy.co/orange/fast-delivery.svg" alt="Express" class="w-full h-full object-contain"/>
-          </div>
-          <h3 class="text-lg sm:text-xl font-semibold text-center text-gray-800">Express</h3>
-          <p class="text-xs sm:text-sm text-gray-600 text-center mt-2">Same-day urgent delivery</p>
-        </div>
-      </label>
-    </div>
-
-    <!-- Reset -->
-    <div id="reset-container" class="hidden text-center mb-6 opacity-0 translate-y-4 transition-all duration-600">
-      <button onclick="resetAll()" class="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium transition-all duration-400 hover:scale-105 text-sm sm:text-base">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Start Over
-      </button>
-    </div>
-
-    <!-- Forms -->
-    <div id="form-container" class="hidden">
-
-      <!-- Progress + Dots -->
-      <div class="flex flex-col items-center mb-8">
-        <div class="flex items-center w-full max-w-md mb-4">
-          <div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-            <div id="progress-bar" class="h-full bg-orange-500 rounded-full" style="width:25%"></div>
-          </div>
-          <span id="progress-text" class="ml-3 text-sm font-medium text-orange-600 opacity-0 translate-x-4 transition-all duration-800">
-            Step 1 of 4
-          </span>
-        </div>
-        <div id="pagination-dots" class="flex gap-2"></div>
-      </div>
-
-      <!-- ==== STEP 1: Package Type (HIDE RADIO CIRCLE) ==== -->
-      <div id="step-package-type" class="step hidden bg-white rounded-2xl p-5 sm:p-8 shadow-lg">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">What are you sending?</h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Document -->
-          <label class="hide-circle relative cursor-pointer">
-            <input type="radio" name="package_type" value="document" class="peer"/>
-            <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 text-center transition-all duration-300 peer-checked:border-orange-500 peer-checked:shadow-lg">
-              <img src="https://illustrations.popsy.co/orange/envelope.svg" alt="Document" class="w-16 h-16 mx-auto mb-3"/>
-              <p class="font-medium text-gray-800 text-sm sm:text-base">Document</p>
-              <span class="text-xs text-gray-500 block mt-1">Letters, contracts, envelopes</span>
-              <div class="radio-circle absolute top-3 right-3 peer-checked:radio-checked"></div>
-            </div>
-          </label>
-
-          <!-- Parcel -->
-          <label class="hide-circle relative cursor-pointer">
-            <input type="radio" name="package_type" value="parcel" class="peer"/>
-            <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 text-center transition-all duration-300 peer-checked:border-orange-500 peer-checked:shadow-lg">
-              <img src="https://illustrations.popsy.co/orange/box.svg" alt="Parcel" class="w-16 h-16 mx-auto mb-3"/>
-              <p class="font-medium text-gray-800 text-sm sm:text-base">Parcel</p>
-              <span class="text-xs text-gray-500 block mt-1">Boxes, gifts, small items</span>
-              <div class="radio-circle absolute top-3 right-3 peer-checked:radio-checked"></div>
-            </div>
-          </label>
-        </div>
-
-        <div id="quantity-input" class="mt-8 hidden opacity-0 -translate-y-4 transition-all duration-600">
-          <label class="block text-sm font-medium text-gray-700 mb-3">Enter quantity</label>
-          <div class="flex items-center justify-center gap-3">
-            <button type="button" onclick="updateQuantity(-1)" class="quantity-btn w-12 h-12 sm:w-14 sm:h-14 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl flex items-center justify-center transition-all duration-400 hover:scale-110 btn-ripple">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-            </button>
-            <input type="number" id="quantity-value" min="1" value="1" readonly class="w-24 text-center px-3 py-3 sm:py-4 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-lg font-medium"/>
-            <button type="button" onclick="updateQuantity(1)" class="quantity-btn w-12 h-12 sm:w-14 sm:h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-xl flex items-center justify-center transition-all duration-400 hover:scale-110 btn-ripple">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <button onclick="nextStep('step-package-type','step-package-size')"
-                class="mt-8 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">
-          Continue
-        </button>
-      </div>
-
-      <!-- ==== STEP 2: Package Size (HIDE RADIO CIRCLE) ==== -->
-      <div id="step-package-size" class="step hidden bg-white rounded-2xl p-5 sm:p-8 shadow-lg">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">What is the size of your parcel?</h2>
-
-        <div class="space-y-4">
-          <!-- Small -->
-          <label class="hide-circle relative cursor-pointer block">
-            <input type="radio" name="package_size" value="small" class="peer"/>
-            <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 peer-checked:border-orange-500 peer-checked:shadow-lg">
-              <img src="https://illustrations.popsy.co/orange/small-box.svg" alt="Small" class="w-12 h-12"/>
-              <div class="flex-1">
-                <p class="font-medium text-gray-800 text-sm sm:text-base">Small</p>
-                <span class="text-xs text-gray-500">Max: 40 x 40 x 100cm</span>
-              </div>
-              <div class="radio-circle peer-checked:radio-checked"></div>
-            </div>
-          </label>
-
-          <!-- Medium -->
-          <label class="hide-circle relative cursor-pointer block">
-            <input type="radio" name="package_size" value="medium" class="peer"/>
-            <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 peer-checked:border-orange-500 peer-checked:shadow-lg">
-              <img src="https://illustrations.popsy.co/orange/medium-box.svg" alt="Medium" class="w-12 h-12"/>
-              <div class="flex-1">
-                <p class="font-medium text-gray-800 text-sm sm:text-base">Medium</p>
-                <span class="text-xs text-gray-500">Max: 80 x 80 x 250cm</span>
-              </div>
-              <div class="radio-circle peer-checked:radio-checked"></div>
-            </div>
-          </label>
-
-          <!-- Large -->
-          <label class="hide-circle relative cursor-pointer block">
-            <input type="radio" name="package_size" value="large" class="peer"/>
-            <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 peer-checked:border-orange-500 peer-checked:shadow-lg">
-              <img src="https://illustrations.popsy.co/orange/large-box.svg" alt="Large" class="w-12 h-12"/>
-              <div class="flex-1">
-                <p class="font-medium text-gray-800 text-sm sm:text-base">Large</p>
-                <span class="text-xs text-gray-500">Max: 150 x 90 x 400cm</span>
-              </div>
-              <div class="radio-circle peer-checked:radio-checked"></div>
-            </div>
-          </label>
-
-          <!-- Other -->
-          <label class="hide-circle relative cursor-pointer block">
-            <input type="radio" name="package_size" value="other" class="peer"/>
-            <div class="bg-white border-2 border-gray-200 rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 peer-checked:border-orange-500 peer-checked:shadow-lg">
-              <img src="https://illustrations.popsy.co/orange/other-box.svg" alt="Other" class="w-12 h-12"/>
-              <div class="flex-1">
-                <p class="font-medium text-gray-800 text-sm sm:text-base">Other</p>
-                <span class="text-xs text-gray-500">Max: 200 x 200 x 500cm</span>
-              </div>
-              <div class="radio-circle peer-checked:radio-checked"></div>
-            </div>
-          </label>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-3 mt-8">
-          <button onclick="prevStep()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Back</button>
-          <button id="size-continue" disabled onclick="nextStep('step-package-size','step-locations')"
-                  class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Continue</button>
-        </div>
-      </div>
-
-      <!-- ==== STEP: Ride Details ==== -->
-      <div id="step-ride-details" class="step hidden bg-white rounded-2xl p-5 sm:p-8 shadow-lg">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Where are you going?</h2>
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pickup Location</label>
-            <input type="text" placeholder="Enter pickup address" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 text-base"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Drop-off Location</label>
-            <input type="text" placeholder="Enter destination" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 text-base"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">When do you need it?</label>
-            <input type="datetime-local" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 text-base"/>
-          </div>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 mt-8">
-          <button onclick="prevStep()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Back</button>
-          <button onclick="nextStep('step-ride-details','step-summary')"
-                  class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Find Ride</button>
-        </div>
-      </div>
-
-      <!-- ==== STEP: Locations ==== -->
-      <div id="step-locations" class="step hidden bg-white rounded-2xl p-5 sm:p-8 shadow-lg">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Fill in the pick up and delivery address</h2>
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pickup</label>
-            <input type="text" placeholder="Brondesbury Villas NW6 6AH" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 text-base"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Delivery</label>
-            <input type="text" placeholder="Flat 1, New Cross NW6 6AH" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 text-base"/>
-          </div>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 mt-8">
-          <button onclick="prevStep()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Back</button>
-          <button onclick="nextStep('step-locations','step-summary')"
-                  class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Continue</button>
-        </div>
-      </div>
-
-      <!-- ==== STEP: Summary ==== -->
-      <div id="step-summary" class="step hidden bg-white rounded-2xl p-5 sm:p-8 shadow-lg">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Details</h2>
-        <div id="summary-content" class="space-y-4 text-gray-700 opacity-0 translate-y-4 transition-all duration-800"></div>
-        <div class="mt-8 pt-6 border-t border-gray-200">
-          <div class="flex justify-between items-center mb-4 opacity-0 translate-y-4 transition-all duration-800 delay-300">
-            <span class="text-base sm:text-lg font-semibold">Total</span>
-            <span class="text-xl sm:text-2xl font-bold text-orange-600" id="total-price">£7.89</span>
-          </div>
-          <button id="final-action-btn"
-                  class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple opacity-0 translate-y-4 delay-500 text-base">
-            Request Delivery
-          </button>
-        </div>
-        <div class="mt-8">
-          <button onclick="prevStep()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 rounded-xl transition-all duration-400 hover:scale-105 btn-ripple text-base">Back</button>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <script>
-    let currentService = '';
-    let packageData = { quantity: 1 };
-    let selectedSize = '';
-    let currentStepIndex = 0;
-    let totalSteps = 0;
-    const stepOrder = {
-      package: ['step-package-type','step-package-size','step-locations','step-summary'],
-      express: ['step-package-type','step-package-size','step-locations','step-summary'],
-      ride:    ['step-ride-details','step-summary']
-    };
-
-    /* ---------- Pagination ---------- */
-    function buildPagination() {
-      const container = document.getElementById('pagination-dots');
-      container.innerHTML = '';
-      const steps = stepOrder[currentService] || [];
-      totalSteps = steps.length;
-      steps.forEach((_, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.dataset.idx = i;
-        dot.onclick = () => goToStep(i);
-        container.appendChild(dot);
-      });
-      updatePagination();
-    }
-    function updatePagination() {
-      document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===currentStepIndex));
-    }
-
-    function goToStep(idx) {
-      if (idx<0 || idx>=totalSteps) return;
-      currentStepIndex = idx;
-      const id = stepOrder[currentService][idx];
-      showStep(id);
-      updateProgress(idx+1,totalSteps);
-      updatePagination();
-    }
-
-    /* ---------- Navigation ---------- */
-    function nextStep(curr,nxt) {
-      const steps = stepOrder[currentService];
-      const curIdx = steps.indexOf(curr);
-      if (curIdx===-1) return;
-
-      if (curr==='step-package-type') {
-        const type = document.querySelector('input[name="package_type"]:checked');
-        if (!type) return alert('Please select a package type');
-        packageData.quantity = parseInt(document.getElementById('quantity-value').value);
-      }
-      if (curr==='step-package-size' && !selectedSize) return alert('Please select a size');
-
-      goToStep(curIdx+1);
-      if (nxt==='step-summary') {
-        const btn = document.getElementById('final-action-btn');
-        btn.textContent = currentService==='ride' ? 'Request A Ride' : 'Request Delivery';
-        setTimeout(()=>{
-          document.querySelectorAll('#step-summary .opacity-0').forEach((el,i)=>setTimeout(()=>el.classList.remove('opacity-0','translate-y-4'),i*150));
-        },100);
-      }
-    }
-    function prevStep() { goToStep(currentStepIndex-1); }
-
-    function showStep(id) {
-      document.querySelectorAll('.step').forEach(s=>{
-        s.classList.remove('active');
-        s.classList.add('hidden');
-      });
-      const t = document.getElementById(id);
-      t.classList.remove('hidden');
-      setTimeout(()=>t.classList.add('active'),50);
-    }
-
-    function updateProgress(step,total) {
-      const pct = (step/total)*100;
-      document.getElementById('progress-bar').style.width = pct+'%';
-      const txt = document.getElementById('progress-text');
-      txt.classList.add('opacity-0','translate-x-4');
-      setTimeout(()=>{
-        txt.textContent=`Step ${step} of ${total}`;
-        txt.classList.remove('opacity-0','translate-x-4');
-      },400);
-    }
-
-    /* ---------- Service selection ---------- */
-    document.querySelectorAll('input[name="service"]').forEach(inp=>{
-      inp.addEventListener('change',function(){
-        currentService = this.value;
-        document.querySelectorAll('.card-label').forEach(l=>{
-          if (!l.querySelector('input').checked) {
-            l.classList.add('opacity-0','scale-95','pointer-events-none');
-            setTimeout(()=>l.classList.add('hidden'),600);
-          }
+            // Setup location validation (Screen 4)
+            const locationInputs = document.querySelectorAll('#location-selection-screen .location-input');
+            locationInputs.forEach(input => input.addEventListener('input', () => checkLocationButton()));
+            checkLocationButton();
         });
-        const fc = document.getElementById('form-container');
-        fc.classList.remove('hidden');
-        setTimeout(()=>fc.classList.add('opacity-100'),50);
-        document.getElementById('reset-container').classList.remove('hidden');
-        setTimeout(()=>document.getElementById('reset-container').classList.remove('opacity-0','translate-y-4'),100);
 
-        buildPagination();
-        currentStepIndex = 0;
-        showStep(stepOrder[currentService][0]);
-        updateProgress(1,totalSteps);
-      });
-    });
+        function setupSelectionListeners() {
+            // Screen 1: Service Type (Delivery/Ride)
+            const serviceCards = document.querySelectorAll('#service-type-screen .flow-card');
+            serviceCards.forEach(card => card.addEventListener('click', () => {
+                serviceCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                checkButtonState(1, true);
+            }));
 
-    /* ---------- Package type ---------- */
-    document.querySelectorAll('input[name="package_type"]').forEach(inp=>{
-      inp.addEventListener('change',function(){
-        packageData.type = this.value;
-        const qty = document.getElementById('quantity-input');
-        qty.classList.remove('hidden');
-        setTimeout(()=>qty.classList.remove('opacity-0','-translate-y-4'),50);
-        if (this.value==='document'){
-          packageData.quantity = 1;
-          document.getElementById('quantity-value').value = 1;
+            // Screen 2: Delivery Speed
+            const speedCards = document.querySelectorAll('#delivery-speed-screen .flow-card');
+            speedCards.forEach(card => card.addEventListener('click', () => {
+                speedCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                checkButtonState(2, true);
+            }));
+
+            // Screen 3: What Are You Sending?
+            const sendingCards = document.querySelectorAll('#what-are-you-sending-screen .flow-card');
+            sendingCards.forEach(card => card.addEventListener('click', () => {
+                sendingCards.forEach(c => {
+                    c.classList.remove('selected');
+                    document.getElementById('item-description-container').classList.add('hidden');
+                });
+                card.classList.add('selected');
+                checkButtonState(3, true);
+
+                if (card.id === 'card-others') {
+                    document.getElementById('item-description-container').classList.remove('hidden');
+                }
+
+                updateCheckmarks(sendingCards, card);
+            }));
+
+            function updateCheckmarks(cards, selectedCard) {
+                cards.forEach(card => {
+                    const checkmarkDiv = card.querySelector('.checkmark');
+                    if (!checkmarkDiv) return;
+
+                    if (card === selectedCard) {
+                        checkmarkDiv.classList.remove('border-gray-400', 'bg-white');
+                        checkmarkDiv.classList.add('bg-primary');
+                        checkmarkDiv.innerHTML = `<svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
+                    } else {
+                        checkmarkDiv.classList.add('border-2', 'border-gray-400', 'bg-white');
+                        checkmarkDiv.classList.remove('bg-primary');
+                        checkmarkDiv.innerHTML = '';
+                    }
+                });
+            }
+            updateCheckmarks(sendingCards, null);
         }
-      });
-    });
 
-    /* ---------- Size ---------- */
-    document.querySelectorAll('input[name="package_size"]').forEach(inp=>{
-      inp.addEventListener('change',function(){
-        selectedSize = this.value;
-        document.getElementById('size-continue').disabled = false;
-      });
-    });
+        function checkButtonState(step, isSelected) {
+            const btn = document.getElementById(`continue-btn-${step}`);
+            if (btn) {
+                if (isSelected) {
+                    btn.classList.remove('btn-disabled');
+                    btn.classList.add('bg-primary', 'shadow-lg', 'shadow-primary/50');
+                    btn.removeAttribute('disabled');
+                } else {
+                    btn.classList.add('btn-disabled');
+                    btn.classList.remove('bg-primary', 'shadow-lg', 'shadow-primary/50');
+                    btn.setAttribute('disabled', 'true');
+                }
+            }
+        }
 
-    /* ---------- Quantity ---------- */
-    function updateQuantity(delta){
-      let v = parseInt(document.getElementById('quantity-value').value);
-      v = Math.max(1, v+delta);
-      document.getElementById('quantity-value').value = v;
-      packageData.quantity = v;
-    }
+        function checkLocationButton() {
+            const pickup = document.getElementById('pickup-location').value;
+            const dropoff = document.getElementById('dropoff-location').value;
+            const isFilled = pickup.trim() !== '' && dropoff.trim() !== '';
+            checkButtonState(4, isFilled);
+        }
 
-    /* ---------- Reset ---------- */
-    function resetAll(){
-      document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
-      document.querySelectorAll('.card-label').forEach(l=>l.classList.remove('hidden','opacity-0','scale-95','pointer-events-none'));
-      document.getElementById('form-container').classList.add('hidden');
-      document.getElementById('reset-container').classList.add('hidden');
-      document.getElementById('pagination-dots').innerHTML = '';
-      currentService = '';
-      packageData = {quantity:1};
-      selectedSize = '';
-      currentStepIndex = 0;
-    }
+        function navigate(step) {
+            if (step > currentStep) {
+                const currentButton = document.getElementById(`continue-btn-${currentStep}`);
+                if (currentButton && currentButton.hasAttribute('disabled')) {
+                    console.log(`Step ${currentStep} requires selection.`);
+                    return;
+                }
+            }
 
-    /* ---------- Summary ---------- */
-    document.addEventListener('click',e=>{
-      if (e.target.textContent==='Continue' && e.target.closest('#step-locations')){
-        setTimeout(()=>{
-          const html = `
-            <div class="flex justify-between text-sm sm:text-base"><span>Sending</span><span class="font-medium">${packageData.type||'—'}</span></div>
-            <div class="flex justify-between text-sm sm:text-base"><span>Quantity</span><span class="font-medium">${packageData.quantity}</span></div>
-            <div class="flex justify-between text-sm sm:text-base"><span>Size</span><span class="font-medium">${selectedSize.toUpperCase()||'—'}</span></div>
-          `;
-          document.getElementById('summary-content').innerHTML = html;
-        },300);
-      }
-    });
-  </script>
+            if (currentStep === step) return;
+
+            currentStep = step;
+            updateUI(true);
+        }
+
+        function updateUI(animate = true) {
+            const wrapper = document.getElementById('flow-wrapper');
+            if (!wrapper) return;
+
+            const translateValue = -(currentStep - 1) * (100 / totalScreens);
+
+            if (!animate) {
+                wrapper.style.transition = 'none';
+            }
+            wrapper.style.transform = `translateX(${translateValue}%)`;
+            if (!animate) {
+                wrapper.offsetHeight;
+                wrapper.style.transition = 'transform 0.4s ease-in-out';
+            }
+
+            const backButtons = document.querySelectorAll('.back-button-link');
+            backButtons.forEach(btn => {
+                if (btn.id === `back-btn-${currentStep}`) {
+                    btn.style.display = currentStep > 1 ? 'flex' : 'none';
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        navigate(currentStep - 1);
+                    };
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
+
 </html>
