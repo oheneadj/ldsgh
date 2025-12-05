@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery & Ride Booking Flow</title>
+    <title>LDSGH Delivery & Ride Booking</title>
 
     <!-- Import Custom Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +14,9 @@
         rel="stylesheet">
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="lib/leaflet.css" />
+    <script src="lib/leaflet.js"></script>
     <style>
         /* Custom styles to define primary colors and match unique spacings/typography */
         :root {
@@ -124,6 +127,40 @@
             }
         }
     </script>
+    <style>
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            border-radius: 0 0 0.75rem 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .autocomplete-suggestion {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-suggestion:hover {
+            background-color: #f9fafb;
+            color: #FF7400;
+        }
+    </style>
 </head>
 
 <body class="bg-white min-h-screen font-sans text-gray-800">
@@ -139,6 +176,12 @@
                 <span class="text-sm font-semibold text-gray-700">+233 59 3353125</span>
             </div>
         </header>
+
+        <!-- Error Toast -->
+        <div id="error-toast"
+            class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full shadow-lg z-50 hidden transition-opacity duration-300">
+            <span id="error-message">Error message here</span>
+        </div>
 
 
         <div id="flow-wrapper" class="flow-wrapper">
@@ -250,31 +293,14 @@
                                     class="ride-location-input w-full bg-primary-light py-4 pl-12 pr-4 rounded-2xl border-none ring-0 focus:ring-2 focus:ring-primary placeholder-gray-500 text-gray-800" />
                             </div>
                         </div>
+                        <!-- Map Preview -->
+                        <div id="ride-map" class="w-full h-48 rounded-2xl z-0 mt-4"></div>
 
                         <div>
-                            <label for="time" class="block text-lg font-semibold font-header mb-2">Time</label>
-                            <div class="flex items-center space-x-2">
-
-                                <select id="ride-hours-select"
-                                    class="select-custom-bg appearance-none py-3 px-3 border border-gray-300 rounded-lg text-lg font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    style="width: 6rem;">
-                                </select>
-
-                                <span class="text-xl font-bold text-gray-700">:</span>
-
-                                <select id="ride-minutes-select"
-                                    class="select-custom-bg appearance-none py-3 px-3 border border-gray-300 rounded-lg text-lg font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    style="width: 6rem;">
-
-                                </select>
-
-                                <select id="ride-ampm-select"
-                                    class="select-custom-bg appearance-none py-3 px-3 border border-gray-300 rounded-lg text-lg font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    style="width: 6rem;">
-                                    <option>AM</option>
-                                    <option>PM</option>
-                                </select>
-                            </div>
+                            <label for="time" class="block text-lg font-semibold font-header mb-2">When do you need the
+                                ride?</label>
+                            <input type="time" id="ride-time-input"
+                                class="w-full bg-primary-light p-4 rounded-2xl border-none ring-0 focus:ring-2 focus:ring-primary text-gray-800 text-lg" />
                         </div>
 
                     </div>
@@ -333,6 +359,22 @@
                             <h2 class="text-xl font-semibold font-header">Advance</h2>
                             <p class="text-gray-500">Book for a future date</p>
                         </a>
+                    </div>
+
+                    <!-- Same Day Time Input -->
+                    <div id="same-day-time-container" class="space-y-2 mt-6 hidden">
+                        <label for="same-day-hours-input" class="block text-lg font-semibold font-header mb-2"
+                            required>Select Time</label>
+                        <input type="time" id="same-day-hours-input"
+                            class="w-full bg-primary-light p-4 rounded-xl border-none ring-0 focus:ring-2 focus:ring-primary text-gray-800 text-lg" />
+                    </div>
+
+                    <!-- Advance Date & Time Input -->
+                    <div id="advance-datetime-container" class="space-y-2 mt-6 hidden">
+                        <label for="advance-datetime-input" class="block text-lg font-semibold font-header mb-2"
+                            required>Select Date & Time</label>
+                        <input type="datetime-local" id="advance-datetime-input"
+                            class="w-full bg-primary-light p-4 rounded-xl border-none ring-0 focus:ring-2 focus:ring-primary text-gray-800 text-lg" />
                     </div>
 
                     <!-- CTA Button -->
@@ -505,6 +547,9 @@
                                 class="w-full bg-primary-light p-4 rounded-xl border-none ring-0 focus:ring-2 focus:ring-primary placeholder-gray-500 resize-none text-gray-800"
                                 placeholder="E.g., apartment number, gate code, or preferred drop-off instructions"></textarea>
                         </div>
+
+                        <!-- Map Preview -->
+                        <div id="delivery-map" class="w-full h-48 rounded-2xl z-0 mt-4"></div>
                     </div>
 
                     <button id="continue-btn-5"
@@ -518,9 +563,7 @@
 
             <section class="flow-screen space-y-6 pt-4">
                 <div class="md:max-w-md md:mx-auto w-full">
-                    <div class="relative w-full h-48">
-                        <img src="/images/review.png" alt="Ride Image" class="object-cover w-full h-full rounded-lg" />
-                    </div>
+
 
                     <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                         <h2 class="text-xl font-bold text-custom-orange">Ride Details</h2>
@@ -592,27 +635,23 @@
         item: null,
         pickupLocation: null,
         dropoffLocation: null,
-        type: null
-
+        type: null,
+        pickupCoords: null,
+        dropoffCoords: null
     };
+
+    let maps = { ride: null, delivery: null };
+    let routeLayers = { ride: null, delivery: null };
 
     document.addEventListener('DOMContentLoaded', () => {
         setupSelectionListeners();
         updateUI(false);
+        initOSMAutocomplete();
+        fetchCurrentLocation();
 
-        for (let i = 0; i < 60; i += 1) {
-            const option = document.createElement('option');
-            option.value = i.toString().padStart(2, '0');
-            option.textContent = i.toString().padStart(2, '0');
-            document.getElementById('ride-minutes-select').appendChild(option);
-        }
 
-        for (let i = 1; i <= 12; i += 1) {
-            const option = document.createElement('option');
-            option.value = i.toString().padStart(2, '0');
-            option.textContent = i.toString().padStart(2, '0');
-            document.getElementById('ride-hours-select').appendChild(option);
-        }
+
+
 
         // Attach listeners to Continue buttons with branching logic
 
@@ -626,17 +665,30 @@
         document.getElementById('card-express').addEventListener('click', (e) => {
             e.preventDefault();
             deliveryInfo.speed = 'Express';
+            document.getElementById('same-day-time-container').classList.add('hidden');
+            document.getElementById('advance-datetime-container').classList.add('hidden');
+            checkDeliverySpeedButton();
         });
 
         document.getElementById('card-same-day').addEventListener('click', (e) => {
             e.preventDefault();
             deliveryInfo.speed = 'Same Day';
+            document.getElementById('same-day-time-container').classList.remove('hidden');
+            document.getElementById('advance-datetime-container').classList.add('hidden');
+            checkDeliverySpeedButton();
         });
 
         document.getElementById('card-advance').addEventListener('click', (e) => {
             e.preventDefault();
             deliveryInfo.speed = 'Advance';
+            document.getElementById('same-day-time-container').classList.add('hidden');
+            document.getElementById('advance-datetime-container').classList.remove('hidden');
+            checkDeliverySpeedButton();
         });
+
+        // Setup validation for delivery speed inputs
+        document.getElementById('same-day-hours-input').addEventListener('input', checkDeliverySpeedButton);
+        document.getElementById('advance-datetime-input').addEventListener('input', checkDeliverySpeedButton);
 
         // Setup location validation for ride details (Screen 2)
         const rideLocationInputs = document.querySelectorAll('.ride-location-input');
@@ -673,7 +725,7 @@
         speedCards.forEach(card => card.addEventListener('click', () => {
             speedCards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
-            checkButtonState(3, true);
+            // Validation is handled by specific card listeners
         }));
 
         // Screen 4: What Are You Sending?
@@ -726,6 +778,20 @@
         checkButtonState(5, isFilled);
     }
 
+    function checkDeliverySpeedButton() {
+        let isValid = false;
+        if (deliveryInfo.speed === 'Express') {
+            isValid = true;
+        } else if (deliveryInfo.speed === 'Same Day') {
+            const timeInput = document.getElementById('same-day-hours-input').value;
+            isValid = timeInput.trim() !== '';
+        } else if (deliveryInfo.speed === 'Advance') {
+            const datetimeInput = document.getElementById('advance-datetime-input').value;
+            isValid = datetimeInput.trim() !== '';
+        }
+        checkButtonState(3, isValid);
+    }
+
     function checkButtonState(step, isSelected) {
         const btn = document.getElementById(`continue-btn-${step}`);
         if (btn) {
@@ -756,6 +822,10 @@
         if (currentStep === 2 && selectedService === 'ride') {
             document.getElementById('ride-pickup-location').focus();
             document.getElementById('ride-details-screen').classList.remove('invisible');
+            // Refresh map when entering the screen
+            setTimeout(() => {
+                updateMap('ride');
+            }, 100);
         } else {
             document.getElementById('ride-details-screen').classList.contains('invisible') ? null : document.getElementById('ride-details-screen').classList.add('invisible');
         }
@@ -774,6 +844,11 @@
 
         if (currentStep === 5) {
             document.getElementById('location-selection-screen').classList.remove('invisible');
+            if (selectedService === 'delivery') {
+                setTimeout(() => {
+                    updateMap('delivery');
+                }, 100);
+            }
         } else {
             document.getElementById('location-selection-screen').classList.contains('invisible') ? null : document.getElementById('location-selection-screen').classList.add('invisible');
         }
@@ -842,7 +917,243 @@
 
 
 
+    function initMap(type) {
+        const containerId = type === 'ride' ? 'ride-map' : 'delivery-map';
+        if (!maps[type]) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                maps[type] = L.map(containerId).setView([5.6037, -0.1870], 13); // Default to Accra
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(maps[type]);
+            }
+        }
+    }
 
+    function updateMap(type = 'ride') {
+        initMap(type);
+        const map = maps[type];
+        if (!map) return;
+
+        map.invalidateSize();
+
+        // Clear existing layers
+        if (routeLayers[type]) {
+            map.removeLayer(routeLayers[type]);
+        }
+        map.eachLayer((layer) => {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+
+        if (deliveryInfo.pickupCoords && deliveryInfo.dropoffCoords) {
+            const pickup = [deliveryInfo.pickupCoords.lat, deliveryInfo.pickupCoords.lon];
+            const dropoff = [deliveryInfo.dropoffCoords.lat, deliveryInfo.dropoffCoords.lon];
+
+            L.marker(pickup).addTo(map);
+            L.marker(dropoff).addTo(map);
+
+            const latlngs = [pickup, dropoff];
+            routeLayers[type] = L.polyline(latlngs, { color: 'blue' }).addTo(map);
+            map.fitBounds(routeLayers[type].getBounds(), { padding: [50, 50] });
+
+            // Calculate Distance
+            const distance = calculateDistance(
+                deliveryInfo.pickupCoords.lat, deliveryInfo.pickupCoords.lon,
+                deliveryInfo.dropoffCoords.lat, deliveryInfo.dropoffCoords.lon
+            );
+
+            console.log(`Distance: ${distance.toFixed(2)} km`);
+            // Update distance in UI (assuming the element exists)
+            // Note: This selector might need adjustment if there are multiple distance elements
+            const distanceElement = document.querySelector('.space-y-5.text-lg .font-semibold.text-gray-800');
+            if (distanceElement) {
+                distanceElement.textContent = `~ ${distance.toFixed(2)}km`;
+            }
+
+        }
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const d = R * c; // Distance in km
+        return d;
+    }
+
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    function initOSMAutocomplete() {
+        const inputIds = [
+            'ride-pickup-location',
+            'ride-dropoff-location',
+            'delivery-pickup-location',
+            'delivery-dropoff-location'
+        ];
+
+        inputIds.forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            // Create suggestions container
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'autocomplete-suggestions hidden';
+            input.parentNode.appendChild(suggestionsContainer);
+
+            let debounceTimer;
+
+            input.addEventListener('input', (e) => {
+                const query = e.target.value;
+                clearTimeout(debounceTimer);
+
+                if (query.length < 3) {
+                    suggestionsContainer.innerHTML = '';
+                    suggestionsContainer.classList.add('hidden');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gh&limit=5&addressdetails=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            suggestionsContainer.innerHTML = '';
+                            if (data.length > 0) {
+                                suggestionsContainer.classList.remove('hidden');
+                                data.forEach(place => {
+                                    const div = document.createElement('div');
+                                    div.className = 'autocomplete-suggestion';
+                                    div.textContent = place.display_name;
+                                    div.addEventListener('click', () => {
+                                        if (validateRegion(place)) {
+                                            input.value = place.display_name;
+                                            suggestionsContainer.innerHTML = '';
+                                            suggestionsContainer.classList.add('hidden');
+
+                                            // Store coordinates
+                                            if (id.includes('pickup')) {
+                                                deliveryInfo.pickupCoords = { lat: parseFloat(place.lat), lon: parseFloat(place.lon) };
+                                            } else if (id.includes('dropoff')) {
+                                                deliveryInfo.dropoffCoords = { lat: parseFloat(place.lat), lon: parseFloat(place.lon) };
+                                            }
+
+                                            // Trigger validation
+                                            if (id.includes('ride')) {
+                                                checkRideDetailsButton();
+                                                updateMap('ride'); // Update map immediately for ride
+                                            } else {
+                                                checkDeliveryLocationButton();
+                                                updateMap('delivery'); // Update map immediately for delivery
+                                            }
+                                        } else {
+                                            showError('Service is only available within the Greater Accra Region.');
+                                            input.value = ''; // Clear invalid selection
+                                            suggestionsContainer.classList.add('hidden');
+                                        }
+                                    });
+                                    suggestionsContainer.appendChild(div);
+                                });
+                            } else {
+                                suggestionsContainer.classList.add('hidden');
+                            }
+                        })
+                        .catch(err => console.error('OSM Fetch Error:', err));
+                }, 300);
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target !== input && e.target !== suggestionsContainer) {
+                    suggestionsContainer.classList.add('hidden');
+                }
+            });
+        });
+    }
+
+    function showError(message) {
+        const toast = document.getElementById('error-toast');
+        const msg = document.getElementById('error-message');
+        if (toast && msg) {
+            msg.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('opacity-0');
+                }, 300);
+            }, 3000);
+        } else {
+            alert(message);
+        }
+    }
+
+    function fetchCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    reverseGeocode(lat, lon);
+                },
+                (error) => {
+                    console.log('Geolocation error:', error);
+                }
+            );
+        }
+    }
+
+    function reverseGeocode(lat, lon) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
+            .then(response => response.json())
+            .then(data => {
+                if (validateRegion(data)) {
+                    const address = data.display_name;
+                    // Set default pickup location
+                    const pickupInputs = ['ride-pickup-location', 'delivery-pickup-location'];
+                    pickupInputs.forEach(id => {
+                        const input = document.getElementById(id);
+                        if (input) input.value = address;
+                    });
+
+                    // Store coordinates
+                    deliveryInfo.pickupCoords = { lat: parseFloat(lat), lon: parseFloat(lon) };
+
+                    // Update map if visible
+                    if (typeof currentStep !== 'undefined') {
+                        if (currentStep === 2 && selectedService === 'ride') {
+                            updateMap('ride');
+                        } else if (currentStep === 5 && selectedService === 'delivery') {
+                            updateMap('delivery');
+                        }
+                    }
+                } else {
+                    // showError('Your current location is outside our service area.');
+                    console.log('Current location outside service area.');
+                }
+            })
+            .catch(err => console.error('Reverse Geocode Error:', err));
+    }
+
+    function validateRegion(place) {
+        const address = place.address;
+        if (address && (address.state === 'Greater Accra Region' || address.region === 'Greater Accra Region')) {
+            return true;
+        }
+        if (place.display_name && place.display_name.includes('Greater Accra')) {
+            return true;
+        }
+        return false;
+    }
 </script>
 
 </html>
